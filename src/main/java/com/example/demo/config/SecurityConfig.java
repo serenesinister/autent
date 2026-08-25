@@ -26,15 +26,25 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        // 1. Rotas Públicas
                         .requestMatchers(
                                 "/auth/login",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
                         ).permitAll()
+
+                        // 2. Rota de perfil próprio: Permitida para qualquer usuário autenticado (USER ou ADMIN)
+                        .requestMatchers(HttpMethod.GET, "/users/me").authenticated()
+
+                        // 3. Todo o CRUD de usuários restrito estritamente a ADMIN
                         .requestMatchers(HttpMethod.POST, "/users").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/users/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/users/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/users").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/users/*").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/users/*").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/users/*").hasRole("ADMIN")
+
+                        // 4. Qualquer outra rota não mapeada exige autenticação
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(
