@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: user-api-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: user_api
+      POSTGRES_USER: user_api
+      POSTGRES_PASSWORD: user_api_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
