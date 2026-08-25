@@ -2,7 +2,7 @@ package com.example.demo.exception;
 
 public class UserNotFoundException extends RuntimeException {
 
-    public UserNotFoundException() {
-        super("Usuario nao encontrado");
+    public UserNotFoundException(String message) {
+        super(message);
     }
 }

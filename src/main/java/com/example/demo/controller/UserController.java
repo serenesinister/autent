@@ -1,12 +1,13 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.CreateUserRequest;
+import com.example.demo.dto.UserRequest;
 import com.example.demo.dto.UserResponse;
 import com.example.demo.service.UserService;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -31,8 +32,8 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public UserResponse me(Authentication authentication) {
-        return userService.findByEmail(authentication.getName());
+    public UserResponse me(Principal principal) {
+        return userService.findByEmail(principal.getName());
     }
 
     @GetMapping("/{id}")
@@ -43,7 +44,7 @@ public class UserController {
     @PutMapping("/{id}")
     public UserResponse update(
             @PathVariable Long id,
-            @RequestBody CreateUserRequest request
+            @RequestBody UserRequest request
     ) {
         return userService.update(id, request);
     }

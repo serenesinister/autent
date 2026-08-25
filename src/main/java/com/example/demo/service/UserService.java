@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.CreateUserRequest;
+import com.example.demo.dto.UserRequest;
 import com.example.demo.dto.UserResponse;
 import com.example.demo.entity.User;
 import com.example.demo.exception.UserNotFoundException;
@@ -50,22 +51,25 @@ public class UserService {
 
     public UserResponse findById(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(UserNotFoundException::new);
+                .orElseThrow(() ->
+                        new UserNotFoundException("Usuario nao encontrado"));
 
         return toResponse(user);
     }
+
 
     public UserResponse findByEmail(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(UserNotFoundException::new);
+                .orElseThrow(() ->
+                        new UserNotFoundException("Usuario nao encontrado"));
 
         return toResponse(user);
     }
-
-    public UserResponse update(Long id, CreateUserRequest request) {
+    public UserResponse update(Long id, UserRequest request) {
 
         User user = userRepository.findById(id)
-                .orElseThrow(UserNotFoundException::new);
+                .orElseThrow(() ->
+                        new UserNotFoundException("Usuario nao encontrado"));
 
         if (!user.getEmail().equals(request.email())
                 && userRepository.existsByEmail(request.email())) {
@@ -87,7 +91,8 @@ public class UserService {
     public void delete(Long id) {
 
         User user = userRepository.findById(id)
-                .orElseThrow(UserNotFoundException::new);
+                .orElseThrow(() ->
+                        new UserNotFoundException("Usuario nao encontrado"));
 
         userRepository.delete(user);
     }
