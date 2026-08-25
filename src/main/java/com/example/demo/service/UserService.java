@@ -3,6 +3,7 @@ package com.example.demo.service;
 import com.example.demo.dto.CreateUserRequest;
 import com.example.demo.dto.UserResponse;
 import com.example.demo.entity.User;
+import com.example.demo.exception.UserNotFoundException;
 import com.example.demo.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -32,10 +33,7 @@ public class UserService {
         User user = new User();
         user.setName(request.name());
         user.setEmail(request.email());
-
-        // Nunca salvar a senha em texto puro
         user.setPassword(passwordEncoder.encode(request.password()));
-
         user.setRole("USER");
 
         User saved = userRepository.save(user);
@@ -52,9 +50,46 @@ public class UserService {
 
     public UserResponse findById(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Usuario nao encontrado"));
+                .orElseThrow(UserNotFoundException::new);
 
         return toResponse(user);
+    }
+
+    public UserResponse findByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(UserNotFoundException::new);
+
+        return toResponse(user);
+    }
+
+    public UserResponse update(Long id, CreateUserRequest request) {
+
+        User user = userRepository.findById(id)
+                .orElseThrow(UserNotFoundException::new);
+
+        if (!user.getEmail().equals(request.email())
+                && userRepository.existsByEmail(request.email())) {
+            throw new IllegalArgumentException("Email ja cadastrado");
+        }
+
+        user.setName(request.name());
+        user.setEmail(request.email());
+
+        if (request.password() != null && !request.password().isBlank()) {
+            user.setPassword(passwordEncoder.encode(request.password()));
+        }
+
+        User updated = userRepository.save(user);
+
+        return toResponse(updated);
+    }
+
+    public void delete(Long id) {
+
+        User user = userRepository.findById(id)
+                .orElseThrow(UserNotFoundException::new);
+
+        userRepository.delete(user);
     }
 
     private UserResponse toResponse(User user) {
